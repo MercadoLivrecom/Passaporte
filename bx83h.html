@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visa Status Check - CEAC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to bottom, #1a3a5c 0%, #0d2a47 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .flag-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .us-flag {
+            width: 90px;
+            height: 55px;
+            background: repeating-linear-gradient(
+                to bottom,
+                #b22234 0px,
+                #b22234 4px,
+                #ffffff 4px,
+                #ffffff 8px,
+                #b22234 8px,
+                #b22234 12px,
+                #ffffff 12px,
+                #ffffff 16px,
+                #b22234 16px,
+                #b22234 20px,
+                #ffffff 20px,
+                #ffffff 24px,
+                #b22234 24px,
+                #b22234 28px,
+                #ffffff 28px,
+                #ffffff 32px,
+                #b22234 32px,
+                #b22234 36px,
+                #ffffff 36px,
+                #ffffff 40px,
+                #b22234 40px,
+                #b22234 44px,
+                #ffffff 44px,
+                #ffffff 48px,
+                #b22234 48px,
+                #b22234 52px,
+                #ffffff 52px,
+                #ffffff 56px
+            );
+            border: 1px solid #fff;
+            position: relative;
+        }
+
+        .us-flag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 30px;
+            background-color: #3c3b6e;
+        }
+
+        .seal {
+            width: 65px;
+            height: 65px;
+            background: radial-gradient(circle, #c9a961 0%, #b8960c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #fff;
+            font-size: 35px;
+        }
+
+        .header-text h1 {
+            font-size: 26px;
+            font-weight: normal;
+            margin-bottom: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        .header-text h2 {
+            font-size: 14px;
+            font-weight: normal;
+            letter-spacing: 2px;
+            opacity: 0.9;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(to bottom, #e8e8e8 0%, #d0d0d0 100%);
+            border-bottom: 1px solid #999;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            height: 32px;
+        }
+
+        .nav-btn {
+            padding: 8px 25px;
+            background: linear-gradient(to bottom, #e8e8e8 0%, #d0d0d0 100%);
+            border: none;
+            border-right: 1px solid #999;
+            cursor: pointer;
+            font-weight: bold;
+            color: #1a3a5c;
+            font-size: 12px;
+            text-transform: uppercase;
+            height: 100%;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 100%);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(to bottom, #c41e3a 0%, #8b0000 100%);
+            color: white;
+            border-right: 1px solid #666;
+        }
+
+        .nav-btn.active::before {
+            content: '▼';
+            margin-right: 5px;
+            font-size: 8px;
+        }
+
+        .nav-btn.active::after {
+            content: '•';
+            margin-left: 10px;
+            color: #ff0000;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            min-height: 600px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #1a3a5c;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        .welcome-text {
+            font-size: 14px;
+            margin-bottom: 25px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Error Box */
+        .error-box {
+            background-color: #fff;
+            border: 1px solid #c41e3a;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-box.show {
+            display: block;
+        }
+
+        .error-box ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #c41e3a;
+            font-size: 13px;
+        }
+
+        .error-box li {
+            margin-bottom: 5px;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            max-width: 700px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        /* Custom Dropdown Button */
+        .dropdown-btn {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #999;
+            font-size: 13px;
+            background-color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-btn::after {
+            content: '▼';
+            font-size: 10px;
+            margin-left: 10px;
+        }
+
+        .dropdown-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .input-box {
+            background-color: #e8e8e8;
+            padding: 15px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .required-mark {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #c41e3a;
+            font-size: 16px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .required-mark.show {
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 6px 8px;
+            padding-right: 30px;
+            border: 1px solid #999;
+            font-size: 13px;
+            background-color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .form-input.error {
+            border: 2px solid #c41e3a;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1a3a5c;
+            box-shadow: 0 0 3px rgba(26, 58, 92, 0.3);
+        }
+
+        .example-text {
+            color: #666;
+            font-size: 11px;
+            margin-top: 3px;
+            font-style: italic;
+        }
+
+        .note {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 11px;
+            color: #555;
+            border-left: 3px solid #999;
+            line-height: 1.5;
+        }
+
+        /* Location Dropdown Modal */
+        .location-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2b2b2b;
+            border-radius: 8px;
+            padding: 0;
+            min-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+
+        .location-modal.active {
+            display: block;
+        }
+
+        .location-option {
+            padding: 15px 25px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+            transition: background-color 0.2s;
+        }
+
+        .location-option:first-child {
+            background-color: #1a3a5c;
+            font-weight: bold;
+        }
+
+        .location-option:last-child {
+            border-bottom: none;
+        }
+
+        .location-option:hover {
+            background-color: #3a3a3a;
+        }
+
+        .location-option.selected {
+            background-color: #1a3a5c;
+        }
+
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #888;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .location-option.selected .radio-circle {
+            border-color: #4da6ff;
+            background-color: #4da6ff;
+        }
+
+        .location-option.selected .radio-circle::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        /* Visa Type Dropdown Modal */
+        .visa-type-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2b2b2b;
+            border-radius: 8px;
+            padding: 0;
+            min-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+
+        .visa-type-modal.active {
+            display: block;
+        }
+
+        .visa-type-option {
+            padding: 20px 25px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+            transition: background-color 0.2s;
+        }
+
+        .visa-type-option:last-child {
+            border-bottom: none;
+        }
+
+        .visa-type-option:hover {
+            background-color: #3a3a3a;
+        }
+
+        .visa-type-option.selected {
+            background-color: #1a3a5c;
+        }
+
+        /* CAPTCHA Styles */
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .captcha-label {
+            font-size: 12px;
+            color: #555;
+            margin-right: 10px;
+        }
+
+        .captcha-image {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 25px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #999;
+        }
+
+        .captcha-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+            pointer-events: none;
+        }
+
+        .captcha-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .captcha-icon {
+            width: 28px;
+            height: 28px;
+            background-color: #e0e0e0;
+            border: 1px solid #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .captcha-icon:hover {
+            background-color: #d0d0d0;
+        }
+
+        .captcha-input {
+            width: 150px;
+            padding: 6px 8px;
+            border: 1px solid #999;
+            font-size: 13px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            background: linear-gradient(to bottom, #c41e3a 0%, #8b0000 100%);
+            color: white;
+            padding: 10px 35px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(to bottom, #d4254a 0%, #a00010 100%);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .submit-btn::after {
+            content: '▶';
+            font-size: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            font-size: 11px;
+            color: #666;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #1a3a5c 0%, #0d2a47 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .footer-text {
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: #1a3a5c;
+            text-decoration: underline;
+            margin-right: 10px;
+        }
+
+        .footer a:hover {
+            color: #0d2a47;
+        }
+
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Result Modal (Issued) - Improved Design */
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 3px solid #000;
+            padding: 40px;
+            max-width: 650px;
+            width: 90%;
+            z-index: 2000;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }
+
+        .result-modal.active {
+            display: block;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+
+        .result-header h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: normal;
+            letter-spacing: 1px;
+        }
+
+        .result-header h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .result-status {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1a3a5c;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        .result-content {
+            margin-bottom: 20px;
+        }
+
+        .result-row {
+            display: flex;
+            margin-bottom: 15px;
+            font-size: 14px;
+            align-items: baseline;
+        }
+
+        .result-label {
+            font-weight: normal;
+            min-width: 250px;
+            color: #333;
+        }
+
+        .result-value {
+            color: #000;
+            font-weight: bold;
+            font-size: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .result-value.visible {
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            background: none;
+            -webkit-text-fill-color: #000;
+            filter: none;
+        }
+
+        .result-message {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-left: 4px solid #1a3a5c;
+            margin: 25px 0;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .result-message a {
+            color: #1a3a5c;
+            text-decoration: underline;
+        }
+
+        .close-btn {
+            display: block;
+            margin: 25px auto 0;
+            padding: 8px 30px;
+            background: none;
+            border: none;
+            color: #1a3a5c;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .close-btn:hover {
+            color: #0d2a47;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-text h1 {
+                font-size: 18px;
+            }
+
+            .header-text h2 {
+                font-size: 12px;
+            }
+
+            .main-container {
+                padding: 10px;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+
+            .location-modal,
+            .visa-type-modal {
+                min-width: 90%;
+                margin: 0 20px;
+            }
+
+            .captcha-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .result-modal {
+                padding: 25px;
+            }
+
+            .result-row {
+                flex-direction: column;
+            }
+
+            .result-label {
+                min-width: auto;
+                margin-bottom: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="flag-container">
+            <div class="us-flag"></div>
+            <div class="seal">🦅</div>
+        </div>
+        <div class="header-text">
+            <h1>Consular Electronic Application Center</h1>
+            <h2>U.S. DEPARTMENT of STATE</h2>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <button class="nav-btn">BACK</button>
+        <button class="nav-btn active">VISA STATUS CHECK</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <h1 class="page-title">Visa Status Check</h1>
+        
+        <!-- Error Box -->
+        <div class="error-box" id="errorBox">
+            <ul id="errorList">
+                <!-- Error messages will be inserted here -->
+            </ul>
+        </div>
+
+        <p class="welcome-text">
+            Welcome! On this website, you can check your U.S. visa application status.
+        </p>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label class="form-label">Visa Application Type</label>
+                <button class="dropdown-btn" id="visaTypeBtn" onclick="openVisaTypeModal()">
+                    <span id="selectedVisaType">IMMIGRANT VISA (IV)</span>
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Please select a location and enter your Application ID or Case Number.</label>
+                
+                <div class="input-box">
+                    <div class="input-wrapper">
+                        <label class="form-label">Select a Location</label>
+                        <button class="dropdown-btn" id="locationBtn" onclick="openLocationModal()" style="background-color: #fffacd;">
+                            <span id="selectedLocation">- SELECT ONE OPTION -</span>
+                        </button>
+                    </div>
+                    
+                    <div class="input-wrapper">
+                        <label class="form-label">Application ID or Case Number</label>
+                        <input type="text" class="form-input" id="caseNumber">
+                        <span class="required-mark" id="caseNumberMark">▲</span>
+                        <div class="example-text">(e.g., MTL1999626025)</div>
+                    </div>
+                    
+                    <div class="note">
+                        NOTE: For applicants who completed their forms prior to January 1, 2022, please enter "NA" in the Passport and Surname fields.
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label class="form-label">Passport Number</label>
+                        <input type="text" class="form-input" id="passport">
+                        <span class="required-mark" id="passportMark">▲</span>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label class="form-label">First 5 Letters of Surname</label>
+                        <input type="text" class="form-input" id="surname">
+                        <span class="required-mark" id="surnameMark">▲</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="captcha-container">
+                    <span class="captcha-label">Enter the code as shown</span>
+                    <input type="text" class="captcha-input" id="captchaInput">
+                    <div class="captcha-image" id="captchaText">5U8N</div>
+                    <div class="captcha-icons">
+                        <div class="captcha-icon" onclick="refreshCaptcha()" title="Refresh">🔄</div>
+                        <div class="captcha-icon" onclick="playAudio()" title="Audio">🔊</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="submitForm()">Submit</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-icon">C</div>
+        <div class="footer-text">
+            This site is managed by the Bureau of Consular Affairs, U.S. Department of State. External links to other Internet sites should not be construed as an endorsement of the views contained therein.<br>
+            <a href="#">Copyright Information</a> 
+            <a href="#">Disclaimer</a>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeAllModals()"></div>
+
+    <!-- Visa Type Modal -->
+    <div class="visa-type-modal" id="visaTypeModal">
+        <div class="visa-type-option selected" onclick="selectVisaType('IMMIGRANT VISA (IV)')" data-value="IV">
+            <span>IMMIGRANT VISA (IV)</span>
+            <div class="radio-circle"></div>
+        </div>
+        <div class="visa-type-option" onclick="selectVisaType('NONIMMIGRANT VISA (NIV)')" data-value="NIV">
+            <span>NONIMMIGRANT VISA (NIV)</span>
+            <div class="radio-circle"></div>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div class="location-modal" id="locationModal">
+        <div class="location-option selected" onclick="selectLocation('- SELECT ONE OPTION -')">
+            <span>- SELECT ONE OPTION -</span>
+            <div class="radio-circle"></div>
+        </div>
+        <!-- Locations will be populated by JavaScript -->
+    </div>
+
+    <!-- Result Modal (Issued) -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-header">
+            <h3>U.S. Department of State</h3>
+            <h2>NONIMMIGRANT VISA APPLICATION</h2>
+            <div class="result-status" id="resultStatus">ISSUED</div>
+        </div>
+        
+        <div class="result-content">
+            <div class="result-row">
+                <span class="result-label">Application ID or Case Number</span>
+                <span class="result-value visible" id="resultCaseNumber">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Case Created:</span>
+                <span class="result-value" id="resultCaseCreated">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Case Last Updated:</span>
+                <span class="result-value" id="resultCaseUpdated">-</span>
+            </div>
+            
+            <div class="result-message">
+                Your visa is in final processing. If you have not received it in more than 10 working days, please see the webpage for contact information of the embassy or consulate where you submitted your application.<br><br>
+                For more information, please visit <a href="#" id="consulateLink">U.S. Consulate General Rio de Janeiro</a>.
+            </div>
+        </div>
+        
+        <button class="close-btn" onclick="closeResultModal()">Close</button>
+    </div>
+
+    <script>
+        // Complete list of locations
+        const locations = [
+            "AFGHANISTAN, KABUL",
+            "ALBANIA, TIRANA",
+            "ALGERIA, ALGIERS",
+            "ANGOLA, LUANDA",
+            "ARGENTINA, BUENOS AIRES",
+            "ARMENIA, YEREVAN",
+            "AUSTRALIA, MELBOURNE",
+            "AUSTRALIA, PERTH",
+            "AUSTRALIA, SYDNEY",
+            "AUSTRIA, VIENNA",
+            "AZERBAIJAN, BAKU",
+            "BAHAMAS, NASSAU",
+            "BAHRAIN, MANAMA",
+            "BANGLADESH, DHAKA",
+            "BARBADOS, BRIDGETOWN",
+            "BELARUS, MINSK",
+            "BELGIUM, BRUSSELS",
+            "BELIZE, BELMOPAN",
+            "BENIN, COTONOU",
+            "BOLIVIA, LA PAZ",
+            "BOSNIA AND HERZEGOVINA, SARAJEVO",
+            "BOTSWANA, GABORONE",
+            "BRAZIL, BELEM",
+            "BRAZIL, BRASÍLIA",
+            "BRAZIL, RECIFE",
+            "BRAZIL, RIO DE JANEIRO",
+            "BRAZIL, SÃO PAULO",
+            "BRUNEI, BANDAR SERI BEGAWAN",
+            "BULGARIA, SOFIA",
+            "BURKINA FASO, OUAGADOUGOU",
+            "BURMA, RANGOON",
+            "BURUNDI, BUJUMBURA",
+            "CAMBODIA, PHNOM PENH",
+            "CAMEROON, YAOUNDE",
+            "CANADA, CALGARY",
+            "CANADA, HALIFAX",
+            "CANADA, MONTREAL",
+            "CANADA, OTTAWA",
+            "CANADA, QUEBEC",
+            "CANADA, TORONTO",
+            "CANADA, VANCOUVER",
+            "CAPE VERDE, PRAIA",
+            "CENTRAL AFRICAN REPUBLIC, BANGUI",
+            "CHAD, N'DJAMENA",
+            "CHILE, SANTIAGO",
+            "CHINA, BEIJING",
+            "CHINA, CHENGDU",
+            "CHINA, GUANGZHOU",
+            "CHINA, SHANGHAI",
+            "CHINA, SHENYANG",
+            "COLOMBIA, BOGOTA",
+            "CONGO, BRAZZAVILLE",
+            "CONGO, KINSHASA",
+            "COSTA RICA, SAN JOSE",
+            "COTE D'IVOIRE, ABIDJAN",
+            "CROATIA, ZAGREB",
+            "CUBA, HAVANA",
+            "CYPRUS, NICOSIA",
+            "CZECH REPUBLIC, PRAGUE",
+            "DENMARK, COPENHAGEN",
+            "DJIBOUTI, DJIBOUTI",
+            "DOMINICAN REPUBLIC, SANTO DOMINGO",
+            "ECUADOR, GUAYAQUIL",
+            "ECUADOR, QUITO",
+            "EGYPT, CAIRO",
+            "EL SALVADOR, SAN SALVADOR",
+            "ESTONIA, TALLINN",
+            "ETHIOPIA, ADDIS ABABA",
+            "FIJI, SUVA",
+            "FINLAND, HELSINKI",
+            "FRANCE, PARIS",
+            "GABON, LIBREVILLE",
+            "GAMBIA, BANJUL",
+            "GEORGIA, TBILISI",
+            "GERMANY, BERLIN",
+            "GERMANY, FRANKFURT",
+            "GERMANY, MUNICH",
+            "GHANA, ACCRA",
+            "GREECE, ATHENS",
+            "GUATEMALA, GUATEMALA CITY",
+            "GUINEA, CONAKRY",
+            "GUINEA-BISSAU, BISSAU",
+            "GUYANA, GEORGETOWN",
+            "HAITI, PORT-AU-PRINCE",
+            "HONDURAS, TEGUCIGALPA",
+            "HONG KONG, HONG KONG",
+            "HUNGARY, BUDAPEST",
+            "ICELAND, REYKJAVIK",
+            "INDIA, CHENNAI",
+            "INDIA, HYDERABAD",
+            "INDIA, KOLKATA",
+            "INDIA, MUMBAI",
+            "INDIA, NEW DELHI",
+            "INDONESIA, JAKARTA",
+            "INDONESIA, SURABAYA",
+            "IRAQ, BAGHDAD",
+            "IRAQ, ERBIL",
+            "IRELAND, DUBLIN",
+            "ISRAEL, JERUSALEM",
+            "ISRAEL, TEL AVIV",
+            "ITALY, FLORENCE",
+            "ITALY, MILAN",
+            "ITALY, NAPLES",
+            "ITALY, ROME",
+            "JAMAICA, KINGSTON",
+            "JAPAN, NAHA",
+            "JAPAN, OSAKA",
+            "JAPAN, SAPPORO",
+            "JAPAN, TOKYO",
+            "JORDAN, AMMAN",
+            "KAZAKHSTAN, ALMATY",
+            "KENYA, NAIROBI",
+            "KOREA, SEOUL",
+            "KOSOVO, PRISTINA",
+            "KUWAIT, KUWAIT CITY",
+            "KYRGYZSTAN, BISHKEK",
+            "LAOS, VIENTIANE",
+            "LATVIA, RIGA",
+            "LEBANON, BEIRUT",
+            "LESOTHO, MASERU",
+            "LIBERIA, MONROVIA",
+            "LIBYA, TRIPOLI",
+            "LITHUANIA, VILNIUS",
+            "LUXEMBOURG, LUXEMBOURG",
+            "MACEDONIA, SKOPJE",
+            "MADAGASCAR, ANTANANARIVO",
+            "MALAWI, LILONGWE",
+            "MALAYSIA, KUALA LUMPUR",
+            "MALI, BAMAKO",
+            "MALTA, VALLETTA",
+            "MARSHALL ISLANDS, MAJURO",
+            "MAURITANIA, NOUAKCHOTT",
+            "MAURITIUS, PORT LOUIS",
+            "MEXICO, CIUDAD JUAREZ",
+            "MEXICO, GUADALAJARA",
+            "MEXICO, HERMOSILLO",
+            "MEXICO, MATAMOROS",
+            "MEXICO, MEXICO CITY",
+            "MEXICO, MONTERREY",
+            "MEXICO, NOGALES",
+            "MEXICO, NUEVO LAREDO",
+            "MEXICO, TIJUANA",
+            "MICRONESIA, KOLONIA",
+            "MOLDOVA, CHISINAU",
+            "MONGOLIA, ULAANBAATAR",
+            "MONTENEGRO, PODGORICA",
+            "MOROCCO, CASABLANCA",
+            "MOZAMBIQUE, MAPUTO",
+            "NAMIBIA, WINDHOEK",
+            "NEPAL, KATHMANDU",
+            "NETHERLANDS, AMSTERDAM",
+            "NEW ZEALAND, AUCKLAND",
+            "NICARAGUA, MANAGUA",
+            "NIGER, NIAMEY",
+            "NIGERIA, ABUJA",
+            "NIGERIA, LAGOS",
+            "NORWAY, OSLO",
+            "OMAN, MUSCAT",
+            "PAKISTAN, ISLAMABAD",
+            "PAKISTAN, KARACHI",
+            "PAKISTAN, LAHORE",
+            "PALAU, KOROR",
+            "PANAMA, PANAMA CITY",
+            "PAPUA NEW GUINEA, PORT MORESBY",
+            "PARAGUAY, ASUNCION",
+            "PERU, LIMA",
+            "PHILIPPINES, MANILA",
+            "POLAND, KRAKOW",
+            "POLAND, WARSAW",
+            "PORTUGAL, LISBON",
+            "QATAR, DOHA",
+            "ROMANIA, BUCHAREST",
+            "RUSSIA, MOSCOW",
+            "RUSSIA, ST. PETERSBURG",
+            "RUSSIA, VLADIVOSTOK",
+            "RUSSIA, YEKATERINBURG",
+            "RWANDA, KIGALI",
+            "SENEGAL, DAKAR",
+            "SERBIA, BELGRADE",
+            "SEYCHELLES, VICTORIA",
+            "SIERRA LEONE, FREETOWN",
+            "SINGAPORE, SINGAPORE",
+            "SLOVAKIA, BRATISLAVA",
+            "SLOVENIA, LJUBLJANA",
+            "SOMALIA, MOGADISHU",
+            "SOUTH AFRICA, CAPE TOWN",
+            "SOUTH AFRICA, DURBAN",
+            "SOUTH AFRICA, JOHANNESBURG",
+            "SOUTH SUDAN, JUBA",
+            "SPAIN, BARCELONA",
+            "SPAIN, MADRID",
+            "SRI LANKA, COLOMBO",
+            "SUDAN, KHARTOUM",
+            "SURINAME, PARAMARIBO",
+            "SWAZILAND, MBABANE",
+            "SWEDEN, STOCKHOLM",
+            "SWITZERLAND, BERN",
+            "TAIWAN, TAIPEI",
+            "TAJIKISTAN, DUSHANBE",
+            "TANZANIA, DAR ES SALAAM",
+            "THAILAND, BANGKOK",
+            "THAILAND, CHIANG MAI",
+            "TOGO, LOME",
+            "TRINIDAD AND TOBAGO, PORT OF SPAIN",
+            "TUNISIA, TUNIS",
+            "TURKEY, ADANA",
+            "TURKEY, ANKARA",
+            "TURKEY, ISTANBUL",
+            "TURKEY, IZMIR",
+            "TURKMENISTAN, ASHGABAT",
+            "UGANDA, KAMPALA",
+            "UKRAINE, KIEV",
+            "UNITED ARAB EMIRATES, ABU DHABI",
+            "UNITED ARAB EMIRATES, DUBAI",
+            "UNITED KINGDOM, BELFAST",
+            "UNITED KINGDOM, EDINBURGH",
+            "UNITED KINGDOM, LONDON",
+            "URUGUAY, MONTEVIDEO",
+            "UZBEKISTAN, TASHKENT",
+            "VENEZUELA, CARACAS",
+            "VIETNAM, HANOI",
+            "VIETNAM, HO CHI MINH CITY",
+            "YEMEN, SANAA",
+            "ZAMBIA, LUSAKA",
+            "ZIMBABWE, HARARE"
+        ];
+
+        // Variable to store selected location
+        let currentLocation = '';
+        let currentLanguage = 'en';
+
+        // Populate location modal
+        function populateLocations() {
+            const modal = document.getElementById('locationModal');
+            locations.forEach(location => {
+                const option = document.createElement('div');
+                option.className = 'location-option';
+                option.onclick = () => selectLocation(location);
+                option.innerHTML = `
+                    <span>${location}</span>
+                    <div class="radio-circle"></div>
+                `;
+                modal.appendChild(option);
+            });
+        }
+
+        // Visa Type Modal Functions
+        function openVisaTypeModal() {
+            document.getElementById('visaTypeModal').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        // Location Modal Functions
+        function openLocationModal() {
+            document.getElementById('locationModal').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function closeAllModals() {
+            document.getElementById('visaTypeModal').classList.remove('active');
+            document.getElementById('locationModal').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        function selectVisaType(text) {
+            document.getElementById('selectedVisaType').textContent = text;
+            
+            document.querySelectorAll('.visa-type-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.textContent.includes(text)) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            closeAllModals();
+        }
+
+        function selectLocation(text) {
+            currentLocation = text;
+            document.getElementById('selectedLocation').textContent = text;
+            
+            document.querySelectorAll('.location-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.querySelector('span').textContent === text) {
+                    opt.classList.add('selected');
+                }
+            });
+            
+            closeAllModals();
+        }
+
+        // Extract city from location string - FIXED
+        function extractCity(location) {
+            if (!location || location === '- SELECT ONE OPTION -') {
+                return 'Rio de Janeiro';
+            }
+            
+            // Split by comma and get the city part (second part)
+            const parts = location.split(',');
+            if (parts.length >= 2) {
+                // Return the city (everything after the first comma)
+                return parts[1].trim();
+            }
+            
+            return 'Rio de Janeiro';
+        }
+
+        // Update consulate link with selected city
+        function updateConsulateLink(city) {
+            const consulateLink = document.getElementById('consulateLink');
+            consulateLink.textContent = `U.S. Consulate General ${city}`;
+            consulateLink.href = '#';
+        }
+
+        // Detect language and update translations
+        function detectLanguage() {
+            // Check for Google Translate
+            const htmlLang = document.documentElement.lang;
+            const bodyClasses = document.body.className;
+            
+            // Check if page is translated to Portuguese
+            if (htmlLang === 'pt' || 
+                bodyClasses.includes('translated-pt') || 
+                document.querySelector('.goog-te-banner-frame') ||
+                (typeof google !== 'undefined' && google.translate && google.translate.element)) {
+                currentLanguage = 'pt';
+            } else {
+                currentLanguage = 'en';
+            }
+            
+            // Update status text based on language
+            updateStatusText();
+        }
+
+        // Update status text based on current language
+        function updateStatusText() {
+            const statusElement = document.getElementById('resultStatus');
+            
+            if (currentLanguage === 'pt') {
+                statusElement.textContent = 'EMITIDO';
+            } else {
+                statusElement.textContent = 'ISSUED';
+            }
+        }
+
+        // Listen for Google Translate changes
+        function setupTranslationListener() {
+            // Check periodically for language changes
+            setInterval(function() {
+                const htmlLang = document.documentElement.lang;
+                const newLang = htmlLang === 'pt' ? 'pt' : 'en';
+                
+                if (newLang !== currentLanguage) {
+                    currentLanguage = newLang;
+                    updateStatusText();
+                }
+            }, 1000);
+            
+            // Also listen for DOM changes (Google Translate modifies the DOM)
+            const observer = new MutationObserver(function(mutations) {
+                detectLanguage();
+            });
+            
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['lang'],
+                subtree: true,
+                characterData: true
+            });
+        }
+
+        // CAPTCHA functionality
+        function refreshCaptcha() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let captcha = '';
+            for (let i = 0; i < 4; i++) {
+                captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('captchaText').textContent = captcha;
+            document.getElementById('captchaInput').value = '';
+        }
+
+        function playAudio() {
+            alert('CAPTCHA audio playback (simulation)');
+        }
+
+        // Get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${date.getDate()}-${months[date.getMonth()]}-${date.getFullYear()}`;
+        }
+
+        // Show result modal
+        function showResultModal(caseNumber, issuedDate, updatedDate) {
+            // Display case number VISIBLY (no blur)
+            document.getElementById('resultCaseNumber').textContent = caseNumber || 'N/A';
+            document.getElementById('resultCaseCreated').textContent = formatDate(issuedDate);
+            document.getElementById('resultCaseUpdated').textContent = formatDate(updatedDate);
+            
+            // Update consulate link with selected location - FIXED to show city
+            const city = extractCity(currentLocation);
+            updateConsulateLink(city);
+            
+            // Detect current language and update status
+            detectLanguage();
+            
+            document.getElementById('resultModal').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        // Close result modal
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // Form validation and submission
+        function submitForm() {
+            const location = document.getElementById('selectedLocation').textContent;
+            const caseNumber = document.getElementById('caseNumber').value.trim();
+            const passport = document.getElementById('passport').value.trim();
+            const surname = document.getElementById('surname').value.trim();
+            const captchaInput = document.getElementById('captchaInput').value.trim();
+            const captchaText = document.getElementById('captchaText').textContent;
+
+            // Get dates from URL parameters
+            const issuedDate = getUrlParameter('issued_date');
+            const updatedDate = getUrlParameter('updated_date');
+
+            // Clear previous errors
+            clearErrors();
+
+            const errors = [];
+
+            // Validate location
+            if (location === '- SELECT ONE OPTION -') {
+                errors.push('Please select a location.');
+                document.getElementById('locationBtn').style.backgroundColor = '#ffcccc';
+            }
+
+            // Validate fields
+            if (!caseNumber) {
+                errors.push('Application ID or Case Number is required.');
+                showError('caseNumber');
+            }
+
+            if (!passport) {
+                errors.push('Passport Number is required.');
+                showError('passport');
+            }
+
+            if (!surname) {
+                errors.push('First 5 letters of Surname are required.');
+                showError('surname');
+            }
+
+            if (!captchaInput) {
+                errors.push('Please enter the CAPTCHA code.');
+            } else if (captchaInput.toUpperCase() !== captchaText) {
+                errors.push('Incorrect CAPTCHA code. Please try again.');
+                refreshCaptcha();
+            }
+
+            // Show errors if any
+            if (errors.length > 0) {
+                displayErrors(errors);
+                return;
+            }
+
+            // Show success modal with dates from URL
+            showResultModal(caseNumber, issuedDate, updatedDate);
+        }
+
+        function showError(fieldId) {
+            const input = document.getElementById(fieldId);
+            const mark = document.getElementById(fieldId + 'Mark');
+            
+            input.classList.add('error');
+            mark.classList.add('show');
+        }
+
+        function displayErrors(errors) {
+            const errorBox = document.getElementById('errorBox');
+            const errorList = document.getElementById('errorList');
+            
+            errorList.innerHTML = '';
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                errorList.appendChild(li);
+            });
+            
+            errorBox.classList.add('show');
+            
+            errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function clearErrors() {
+            const errorBox = document.getElementById('errorBox');
+            const inputs = document.querySelectorAll('.form-input');
+            const marks = document.querySelectorAll('.required-mark');
+            const locationBtn = document.getElementById('locationBtn');
+            
+            errorBox.classList.remove('show');
+            inputs.forEach(input => input.classList.remove('error'));
+            marks.forEach(mark => mark.classList.remove('show'));
+            locationBtn.style.backgroundColor = '#fffacd';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            populateLocations();
+            refreshCaptcha();
+            setupTranslationListener();
+        });
+
+        // Prevent form submission on Enter key
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+
+        // Clear error when user starts typing
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+                const markId = this.id + 'Mark';
+                const mark = document.getElementById(markId);
+                if (mark) {
+                    mark.classList.remove('show');
+                }
+                
+                const hasErrors = document.querySelectorAll('.form-input.error').length > 0;
+                if (!hasErrors) {
+                    document.getElementById('errorBox').classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
