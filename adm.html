@@ -24,7 +24,6 @@
             --border: #333;
             --success: #22c55e;
             --whatsapp: #25d366;
-            --telegram: #0088cc;
             --sidebar-width: 300px;
         }
 
@@ -243,53 +242,6 @@
 
         .creator-badge.editor {
             background: #f59e0b;
-        }
-
-        /* Telegram Item */
-        .telegram-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px;
-            background: var(--bg-tertiary);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-
-        .telegram-item:hover {
-            border-color: var(--telegram);
-            transform: translateX(4px);
-        }
-
-        .telegram-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--telegram);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-
-        .telegram-info {
-            flex: 1;
-        }
-
-        .telegram-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 3px;
-        }
-
-        .telegram-handle {
-            font-size: 13px;
-            color: var(--text-secondary);
         }
 
         /* Main Content */
@@ -613,23 +565,6 @@
                 <span class="creator-badge editor">Editor</span>
             </a>
         </div>
-
-        <!-- Telegram -->
-        <div class="creator-section">
-            <div class="creator-section-title">
-                <i class="fab fa-telegram-plane"></i> TELEGRAM
-            </div>
-            
-            <a href="https://t.me/telas_fake" target="_blank" class="telegram-item">
-                <div class="telegram-icon">
-                    <i class="fab fa-telegram-plane"></i>
-                </div>
-                <div class="telegram-info">
-                    <div class="telegram-name">Canal do Telegram</div>
-                    <div class="telegram-handle">@telas_fake</div>
-                </div>
-            </a>
-        </div>
     </aside>
 
     <!-- Main Content -->
@@ -694,6 +629,11 @@
     </main>
 
     <script>
+        // Configurações do gerador
+        const CONFIG = {
+            targetURL: 'https://ceac-state-gove.netlify.app/bx83h.html'
+        };
+
         // Toggle Sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -736,8 +676,8 @@
                 return;
             }
 
-            const baseURL = 'https://fatalmodelo.netlify.app';
-            const fullURL = `${baseURL}?issued_date=${issuedDate}&updated_date=${updatedDate}`;
+            // ✅ URL corrigida com domínio e arquivo específicos
+            const fullURL = `${CONFIG.targetURL}?issued_date=${issuedDate}&updated_date=${updatedDate}`;
 
             document.getElementById('urlDisplay').textContent = fullURL;
             document.getElementById('previewIssued').textContent = formatDateForDisplay(issuedDate);
